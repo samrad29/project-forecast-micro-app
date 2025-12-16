@@ -18,11 +18,33 @@ body {
 }
 
 header {
-    text-align: center;
     color: #ffffff;
     margin-bottom: 40px;
     padding: 30px 0;
     border-bottom: 1px solid #333;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo-container {
+    flex-shrink: 0;
+}
+
+.logo {
+    max-height: 80px;
+    width: auto;
+    display: block;
+}
+
+.header-text {
+    flex: 1;
+    text-align: left;
 }
 
 header h1 {
@@ -49,6 +71,22 @@ header h2 {
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    .header-text {
+        text-align: center;
+    }
+    
+    .logo {
+        max-height: 60px;
+    }
 }
 
 .main-content {
