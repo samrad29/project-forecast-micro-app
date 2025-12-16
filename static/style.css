@@ -6,10 +6,10 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #85a7c7 100%);
+    background: #ffffff;
     min-height: 100vh;
     padding: 20px;
-    color: #333;
+    color: #2c2c2c;
 }
 
 .container {
@@ -19,19 +19,36 @@ body {
 
 header {
     text-align: center;
-    color: white;
-    margin-bottom: 30px;
+    color: #2c2c2c;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    border-bottom: 1px solid #e8e8e8;
 }
 
 header h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
+    margin-bottom: 8px;
+    color: #2c2c2c;
+    letter-spacing: -0.5px;
+}
+
+header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-top: 10px;
     margin-bottom: 10px;
+    color: #ff8c00;
+    letter-spacing: -0.3px;
 }
 
 .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    font-size: 0.9rem;
+    color: #ff8c00;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
 }
 
 .main-content {
@@ -50,21 +67,26 @@ header h1 {
 .form-section,
 .results-section {
     background: white;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 30px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e8e8e8;
 }
 
 h2 {
-    color: #4a6fa5;
+    color: #2c2c2c;
     margin-bottom: 20px;
     font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
 }
 
 h3 {
-    color: #4a6fa5;
+    color: #2c2c2c;
     margin-bottom: 15px;
     font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.2px;
 }
 
 .form-group {
@@ -99,7 +121,8 @@ input[type="number"]:focus,
 input[type="text"]:focus,
 select:focus {
     outline: none;
-    border-color: #4a6fa5;
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
 }
 
 small {
@@ -127,17 +150,18 @@ small {
 
 .remove-milestone {
     padding: 8px 15px;
-    background: #ff4757;
+    background: #dc3545;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.3s;
+    font-weight: 500;
 }
 
 .remove-milestone:hover {
-    background: #ff3838;
+    background: #c82333;
 }
 
 .btn-primary,
@@ -152,25 +176,31 @@ small {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #4a6fa5 0%, #764ba2 100%);
+    background: #ff8c00;
     color: white;
     width: 100%;
     margin-top: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+    background: #ff7700;
 }
 
 .btn-secondary {
-    background: #f0f0f0;
-    color: #333;
+    background: #f8f8f8;
+    color: #2c2c2c;
     margin-top: 10px;
+    border: 1px solid #e8e8e8;
+    font-weight: 500;
 }
 
 .btn-secondary:hover {
-    background: #e0e0e0;
+    background: #e8e8e8;
+    border-color: #d0d0d0;
 }
 
 .summary-cards {
@@ -181,11 +211,13 @@ small {
 }
 
 .card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2c2c2c;
     color: white;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #ff8c00;
 }
 
 .card-label {
@@ -200,7 +232,8 @@ small {
 }
 
 .verdict-go {
-    color: #2ecc71;
+    color: #4caf50;
+    font-weight: 700;
 }
 
 .verdict-restructure {
@@ -228,7 +261,7 @@ table {
 }
 
 thead {
-    background: #667eea;
+    background: #2c2c2c;
     color: white;
 }
 
@@ -251,7 +284,7 @@ tbody tr:last-child td {
 }
 
 .positive {
-    color: #2ecc71;
+    color: #2e7d32;
     font-weight: 600;
 }
 
@@ -263,7 +296,7 @@ tbody tr:last-child td {
 .loading {
     text-align: center;
     padding: 20px;
-    color: #667eea;
+    color: #ff8c00;
 }
 
 .error {

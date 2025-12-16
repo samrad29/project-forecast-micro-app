@@ -214,10 +214,11 @@ function createChart(forecastData) {
                 {
                     label: 'Cash In',
                     data: cashIn,
-                    borderColor: '#2ecc71',
-                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderColor: '#4caf50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
                     tension: 0.4,
-                    fill: false
+                    fill: false,
+                    borderWidth: 2
                 },
                 {
                     label: 'Cash Out',
@@ -225,16 +226,18 @@ function createChart(forecastData) {
                     borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     tension: 0.4,
-                    fill: false
+                    fill: false,
+                    borderWidth: 2
                 },
                 {
                     label: 'Cumulative Cash',
                     data: cumulative,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderColor: '#ff8c00',
+                    backgroundColor: 'rgba(255, 140, 0, 0.15)',
                     tension: 0.4,
                     fill: true,
-                    yAxisID: 'y1'
+                    yAxisID: 'y1',
+                    borderWidth: 2
                 }
             ]
         },
