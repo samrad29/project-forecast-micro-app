@@ -1,23 +1,7 @@
 let cashFlowChart = null;
 
-// Wait for Chart.js to load
-function waitForChart(callback, maxAttempts = 50) {
-    if (typeof Chart !== 'undefined') {
-        callback();
-    } else if (maxAttempts > 0) {
-        setTimeout(() => waitForChart(callback, maxAttempts - 1), 100);
-    } else {
-        console.error('Chart.js failed to load after waiting');
-    }
-}
-
 // Initialize milestones
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait for Chart.js to be available
-    waitForChart(function() {
-        console.log('Chart.js loaded successfully');
-    });
-    
     const addMilestoneBtn = document.getElementById('add-milestone');
     addMilestoneBtn.addEventListener('click', addMilestoneRow);
     
@@ -189,12 +173,25 @@ function createChart(forecastData) {
     // Check if Chart.js is loaded
     if (typeof Chart === 'undefined') {
         console.error('Chart.js is not loaded');
-        document.getElementById('cashFlowChart').parentElement.innerHTML = 
-            '<div class="error">Chart library failed to load. Please refresh the page.</div>';
+        // Try to wait a bit and check again
+        setTimeout(() => {
+            if (typeof Chart !== 'undefined') {
+                createChart(forecastData);
+            } else {
+                document.getElementById('cashFlowChart').parentElement.innerHTML = 
+                    '<div class="error">Chart library failed to load. Please refresh the page or check your internet connection.</div>';
+            }
+        }, 500);
         return;
     }
     
-    const ctx = document.getElementById('cashFlowChart').getContext('2d');
+    const canvas = document.getElementById('cashFlowChart');
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
     
     // Destroy existing chart if it exists
     if (cashFlowChart) {
