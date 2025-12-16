@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Flow Forecast - Pro Forma</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cash Flow Forecast</h1>
+            <p class="subtitle">Project & Contract Financial Planning</p>
+        </header>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Project Details</h2>
+                <form id="forecastForm">
+                    <div class="form-group">
+                        <label for="contract_value">Contract Value ($)</label>
+                        <input type="number" id="contract_value" name="contract_value" step="0.01" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="time_frame">Project Duration (months)</label>
+                            <input type="number" id="time_frame" name="time_frame" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_lag">Payment Lag (months)</label>
+                            <input type="number" id="payment_lag" name="payment_lag" min="0" value="1" required>
+                            <small>Delay between billing and payment</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="monthly_expense">Monthly Expense ($)</label>
+                            <input type="number" id="monthly_expense" name="monthly_expense" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthly_burn">Monthly Burn Rate ($)</label>
+                            <input type="number" id="monthly_burn" name="monthly_burn" step="0.01" value="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contingency_percent">Contingency (%)</label>
+                            <input type="number" id="contingency_percent" name="contingency_percent" step="0.01" min="0" max="100" value="10" required>
+                            <small>Additional buffer for unexpected costs</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="upfront_cost">Upfront Cost ($)</label>
+                            <input type="number" id="upfront_cost" name="upfront_cost" step="0.01" value="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cash_floor">Minimum Cash Floor ($)</label>
+                        <input type="number" id="cash_floor" name="cash_floor" step="0.01" value="0" required>
+                        <small>Minimum cash balance to maintain</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="billing_milestones">Billing Milestones</label>
+                        <div id="milestones-container">
+                            <div class="milestone-entry">
+                                <input type="number" class="milestone-month" placeholder="Month" min="0" step="1">
+                                <input type="number" class="milestone-percent" placeholder="% of contract" min="0" max="100" step="0.01">
+                                <button type="button" class="remove-milestone">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-milestone" class="btn-secondary">Add Milestone</button>
+                        <small>Enter month number and percentage of contract value to bill</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scenario">Scenario</label>
+                        <select id="scenario" name="scenario">
+                            <option value="base">Base Case</option>
+                            <option value="worst_case">Worst Case</option>
+                            <option value="delayed">Delayed</option>
+                            <option value="over_budget">Over Budget</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Generate Forecast</button>
+                </form>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h2>Forecast Results</h2>
+                
+                <div class="summary-cards">
+                    <div class="card">
+                        <div class="card-label">Verdict</div>
+                        <div class="card-value" id="verdict"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Payback Period</div>
+                        <div class="card-value" id="payback"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Gross Margin</div>
+                        <div class="card-value" id="grossMargin"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Min Cash</div>
+                        <div class="card-value" id="minCash"></div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+
+                <div class="table-container">
+                    <h3>Monthly Breakdown</h3>
+                    <table id="forecastTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Cash In</th>
+                                <th>Cash Out</th>
+                                <th>Net Cash</th>
+                                <th>Cumulative Cash</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forecastTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+
