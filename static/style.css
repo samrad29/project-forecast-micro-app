@@ -244,6 +244,98 @@ small {
     background: #c82333;
 }
 
+#unexpected-costs-container {
+    margin-bottom: 10px;
+}
+
+.unexpected-costs-entry {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.unexpected-costs-entry input {
+    margin-bottom: 0;
+}
+
+.remove-unexpected-costs {
+    padding: 8px 15px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+    font-weight: 500;
+}
+
+#phase_expense_container {
+    margin-bottom: 10px;
+}
+
+.phase-entry {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.phase-entry input {
+    margin-bottom: 0;
+}
+
+.remove-phase {
+    padding: 8px 15px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+    font-weight: 500;
+}
+
+.remove-phase:hover {
+    background: #c82333;
+}
+
+#delay-container {
+    margin-bottom: 10px;
+}
+
+.delay-entry {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.delay-entry input {
+    margin-bottom: 0;
+}
+
+.remove-delay {
+    padding: 8px 15px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+    font-weight: 500;
+}
+
+.remove-delay:hover {
+    background: #c82333;
+}
+
 .btn-primary,
 .btn-secondary {
     padding: 12px 24px;

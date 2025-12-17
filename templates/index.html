@@ -98,7 +98,7 @@
                     <div class="form-group">
                         <label for="scenario">Delays</label>
                         <div id="delay-container">
-                            <div class="phase-entry">
+                            <div class="delay-entry">
                                 <input type="text" class="delay-start-date" placeholder="Start Month">
                                 <input type="number" class="delay-length" placeholder="Delay Length (months)">
                                 <input type="number" class="delay-expense" placeholder="Delay Expense Monthly (excluding overhead)">
@@ -112,15 +112,14 @@
                     <div class="form-group">
                         <label for="scenario">Unexpected Costs</label>
                         <div id="unexpected-costs-container">
-                            <div class="phase-entry">
+                            <div class="unexpected-costs-entry">
                                 <input type="text" class="phase-name" placeholder="Phase Name">
                                 <input type="number" class="unexpected-costs-percent" placeholder="Unexpected Costs % per month" min="0" max="100" step="0.01">
                                 <button type="button" class="remove-unexpected-costs">Remove</button>
                             </div>
                         </div>
                         <button type="button" id="add-unexpected-costs" class="btn-secondary">Add Unexpected Costs</button>
-                        <input type="number" id="unexpected_costs" name="unexpected_costs" step="0.01" value="0" required>
-                        <small>Enter unexpected costs as a percentage of the contract value</small>
+                        <small>Enter unexpected costs as a percentage of the phase expense</small>
                     </div>
 
                     <button type="submit" class="btn-primary">Generate Forecast</button>
