@@ -64,6 +64,48 @@ header h2 {
     letter-spacing: -0.3px;
 }
 
+.header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.header-buttons-left,
+.header-buttons-center,
+.header-buttons-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-buttons button {
+    padding: 10px 20px;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .header-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .header-buttons-left,
+    .header-buttons-center,
+    .header-buttons-right {
+        width: 100%;
+    }
+    
+    .header-buttons button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
 .subtitle {
     font-size: 0.9rem;
     color: #ff8c00;
