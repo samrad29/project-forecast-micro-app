@@ -97,6 +97,8 @@ def calculate_forecast(inputs, scenario):
             milestone_key = str(i - payment_lag) if i >= payment_lag else None
             milestone_percent = billing_milestones.get(milestone_key, 0) if milestone_key else 0
             cash_in = milestone_percent * contract_value
+
+            # If the month is after the time frame, the cash out is just the monthly burn
             if i > time_frame:
                 cash_out = monthly_burn
             else:
