@@ -104,6 +104,7 @@ def calculate_forecast(inputs, scenario):
             net_cash = cash_in - cash_out
             cumulative_net_cash += net_cash
             if i == 0:
+                cash_out += upfront_cost
                 cumulative_net_cash -= upfront_cost
             forecast.append({
                 'cash_in': cash_in,
