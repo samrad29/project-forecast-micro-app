@@ -33,8 +33,12 @@
         </header>
 
         <div class="main-content">
-            <div class="form-section">
-                <h2>Project Details</h2>
+            <div class="form-section" id="formSection">
+                <div class="form-section-header">
+                    <h2>Project Details</h2>
+                    <button type="button" class="toggle-form-btn" id="toggleFormBtn">Minimize</button>
+                </div>
+                <div class="form-content">
                 <form id="forecastForm">
                     <div class="form-group">
                         <label for="contract_value">Contract Value ($)</label>
@@ -124,6 +128,7 @@
 
                     <button type="submit" class="btn-primary">Generate Forecast</button>
                 </form>
+                </div>
             </div>
 
             <div class="results-section" id="resultsSection" style="display: none;">

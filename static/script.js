@@ -10,6 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form submission
     document.getElementById('forecastForm').addEventListener('submit', handleFormSubmit);
+    
+    // Toggle form minimize/expand
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    const formSection = document.getElementById('formSection');
+    toggleFormBtn.addEventListener('click', function() {
+        formSection.classList.toggle('minimized');
+        toggleFormBtn.textContent = formSection.classList.contains('minimized') ? 'Expand' : 'Minimize';
+    });
 });
 
 function addMilestoneRow() {
@@ -162,6 +170,10 @@ function handleFormSubmit(e) {
     const resultsSection = document.getElementById('resultsSection');
     resultsSection.style.display = 'block';
     resultsSection.innerHTML = '<div class="loading">Generating forecast...</div>';
+    
+    // Minimize form section after submission
+    const formSection = document.getElementById('formSection');
+    formSection.classList.add('minimized');
     
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
