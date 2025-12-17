@@ -93,6 +93,8 @@ def calculate_forecast(inputs, scenario):
         phase_change = True
         # Calculate the forecast
         forecast = []
+
+        print("Setup Complete")
         for i in range(1, time_frame+payment_lag+total_delays+1):
             # Determine current delay
             # If the current month is a delay, set the current delay to true and decrement the delay remaining
@@ -107,6 +109,8 @@ def calculate_forecast(inputs, scenario):
                 current_delay = False
                 delay_remaining = 0
 
+            print("Delay Determined")
+
             # Determine current phase
             # If the current phase is not complete, decrement the remaining months and set the phase change to false
             if current_phase_remaining > 0:
@@ -120,6 +124,8 @@ def calculate_forecast(inputs, scenario):
                 current_phase_upfront = phases[current_phase]['upfront']
                 phase_change = True
 
+            print("Phase Determined")
+
             # Check if current phase has unexpected costs
             if current_phase in unexpected_costs:
                 unexpected_cost_percent = unexpected_costs[current_phase]
@@ -127,6 +133,8 @@ def calculate_forecast(inputs, scenario):
             else: 
                 unexpected_cost = 0
             
+            print("Unexpected Cost Determined")
+
             # Calculate the cash in and cash out
             # billing_milestones is a dict with month indices (0-based) and percentages
             if not current_delay:
@@ -135,6 +143,8 @@ def calculate_forecast(inputs, scenario):
                 cash_in = milestone_percent * contract_value
             else:
                 cash_in = 0
+
+            print("Cash In Determined")
 
             # If the month is after the time frame, the cash out is just the monthly burn
             if i > time_frame:
@@ -147,6 +157,9 @@ def calculate_forecast(inputs, scenario):
             else:
                 cumulative_expenses += current_phase_expense + (contingency_percent * current_phase_expense) + unexpected_cost
                 cash_out = current_phase_expense + current_phase_overhead + (contingency_percent * current_phase_expense) + unexpected_cost
+
+            print("Cash Out Determined")
+
             net_cash = cash_in - cash_out
             cumulative_net_cash += net_cash
 
@@ -162,6 +175,7 @@ def calculate_forecast(inputs, scenario):
                 'cumulative_net_cash': cumulative_net_cash,
                 'phase': current_phase,
             })
+            print("Forecast Appended")
 
             # Set the minimum net cash and the minimum net cash month
             if i == 1:
@@ -179,7 +193,8 @@ def calculate_forecast(inputs, scenario):
             if cumulative_net_cash > 0 and payback_found == False:
                 payback_period = i
                 payback_found = True
-        
+                
+        print("made it through loop")
         # If the contract value is less than the monthly expense multiplied by the time frame, the project is not profitable
         if contract_value < contingency_percent*monthly_expense*time_frame:
             verdict = 'Not Profitable'
