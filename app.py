@@ -91,13 +91,16 @@ def calculate_forecast(inputs, scenario):
 
         # Calculate the forecast
         forecast = []
-        for i in range(time_frame+payment_lag):
+        for i in range(1, time_frame+payment_lag):
             # Calculate the cash in and cash out
             # billing_milestones is a dict with month indices (0-based) and percentages
             milestone_key = str(i - payment_lag) if i >= payment_lag else None
             milestone_percent = billing_milestones.get(milestone_key, 0) if milestone_key else 0
             cash_in = milestone_percent * contract_value
-            cash_out = monthly_burn + monthly_expense + (contingency_percent * monthly_expense)
+            if i > time_frame:
+                cash_out = monthly_burn
+            else:
+                cash_out = monthly_burn + monthly_expense + (contingency_percent * monthly_expense)
             net_cash = cash_in - cash_out
             cumulative_net_cash += net_cash
             if i == 0:
