@@ -66,6 +66,7 @@ function handleFormSubmit(e) {
     }
     
     formData.billing_milestones = milestones;
+    console.log(formData.billing_milestones);
     
     // Show loading state
     const resultsSection = document.getElementById('resultsSection');
@@ -233,7 +234,6 @@ function createChart(forecastData) {
                     backgroundColor: 'rgba(255, 140, 0, 0.15)',
                     tension: 0.4,
                     fill: true,
-                    yAxisID: 'y1',
                     borderWidth: 2
                 }
             ]
@@ -258,25 +258,11 @@ function createChart(forecastData) {
             },
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: false,
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toLocaleString();
+                            return formatCurrency(value);
                         }
-                    }
-                },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString();
-                        }
-                    },
-                    grid: {
-                        drawOnChartArea: false
                     }
                 }
             }

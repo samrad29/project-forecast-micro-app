@@ -91,7 +91,7 @@ def calculate_forecast(inputs, scenario):
 
         # Calculate the forecast
         forecast = []
-        for i in range(time_frame):
+        for i in range(time_frame+payment_lag):
             # Calculate the cash in and cash out
             # billing_milestones is a dict with month indices (0-based) and percentages
             milestone_key = str(i - payment_lag) if i >= payment_lag else None
