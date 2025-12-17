@@ -8,17 +8,87 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add initial milestone row
     addMilestoneRow();
     
+    // Add phase button
+    const addPhaseBtn = document.getElementById('add-phase');
+    if (addPhaseBtn) {
+        addPhaseBtn.addEventListener('click', addPhaseRow);
+    }
+    
+    // Add delay button
+    const addDelayBtn = document.getElementById('add-delay');
+    if (addDelayBtn) {
+        addDelayBtn.addEventListener('click', addDelayRow);
+    }
+    
+    // Add unexpected costs button
+    const addUnexpectedCostsBtn = document.getElementById('add-unexpected-costs');
+    if (addUnexpectedCostsBtn) {
+        addUnexpectedCostsBtn.addEventListener('click', addUnexpectedCostsRow);
+    }
+    
+    // Initialize remove buttons for existing entries
+    initializeRemoveButtons();
+    
     // Form submission
     document.getElementById('forecastForm').addEventListener('submit', handleFormSubmit);
     
     // Toggle form minimize/expand
     const toggleFormBtn = document.getElementById('toggleFormBtn');
     const formSection = document.getElementById('formSection');
-    toggleFormBtn.addEventListener('click', function() {
-        formSection.classList.toggle('minimized');
-        toggleFormBtn.textContent = formSection.classList.contains('minimized') ? 'Expand' : 'Minimize';
-    });
+    if (toggleFormBtn && formSection) {
+        toggleFormBtn.addEventListener('click', function() {
+            formSection.classList.toggle('minimized');
+            toggleFormBtn.textContent = formSection.classList.contains('minimized') ? 'Expand' : 'Minimize';
+        });
+    }
 });
+
+function initializeRemoveButtons() {
+    // Initialize remove buttons for existing phase entries
+    const phaseContainer = document.getElementById('phase_expense_container');
+    if (phaseContainer) {
+        phaseContainer.querySelectorAll('.remove-phase').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = btn.closest('.phase-entry');
+                if (phaseContainer.children.length > 1) {
+                    row.remove();
+                } else {
+                    alert('You must have at least one phase');
+                }
+            });
+        });
+    }
+    
+    // Initialize remove buttons for existing delay entries
+    const delayContainer = document.getElementById('delay-container');
+    if (delayContainer) {
+        delayContainer.querySelectorAll('.remove-delay').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = btn.closest('.delay-entry');
+                if (delayContainer.children.length > 1) {
+                    row.remove();
+                } else {
+                    alert('You must have at least one delay entry');
+                }
+            });
+        });
+    }
+    
+    // Initialize remove buttons for existing unexpected cost entries
+    const unexpectedCostsContainer = document.getElementById('unexpected-costs-container');
+    if (unexpectedCostsContainer) {
+        unexpectedCostsContainer.querySelectorAll('.remove-unexpected-costs').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = btn.closest('.unexpected-costs-entry');
+                if (unexpectedCostsContainer.children.length > 1) {
+                    row.remove();
+                } else {
+                    alert('You must have at least one unexpected cost entry');
+                }
+            });
+        });
+    }
+}
 
 function addMilestoneRow() {
     const container = document.getElementById('milestones-container');
@@ -51,6 +121,15 @@ function addUnexpectedCostsRow() {
         <button type="button" class="remove-unexpected-costs">Remove</button>
     `;
     container.appendChild(row);
+    
+    // Add remove functionality
+    row.querySelector('.remove-unexpected-costs').addEventListener('click', function() {
+        if (container.children.length > 1) {
+            row.remove();
+        } else {
+            alert('You must have at least one unexpected cost entry');
+        }
+    });
 }
 
 function addDelayRow() {
@@ -63,12 +142,20 @@ function addDelayRow() {
         <input type="number" class="delay-expense" placeholder="Delay Expense Monthly (excluding overhead)">
         <button type="button" class="remove-delay">Remove</button>
     `;
-    
     container.appendChild(row);
+    
+    // Add remove functionality
+    row.querySelector('.remove-delay').addEventListener('click', function() {
+        if (container.children.length > 1) {
+            row.remove();
+        } else {
+            alert('You must have at least one delay entry');
+        }
+    });
 }
 
 function addPhaseRow() {
-    const container = document.getElementById('phase-container');
+    const container = document.getElementById('phase_expense_container');
     const row = document.createElement('div');
     row.className = 'phase-entry';
     row.innerHTML = `
@@ -80,6 +167,15 @@ function addPhaseRow() {
         <button type="button" class="remove-phase">Remove</button>
     `;
     container.appendChild(row);
+    
+    // Add remove functionality
+    row.querySelector('.remove-phase').addEventListener('click', function() {
+        if (container.children.length > 1) {
+            row.remove();
+        } else {
+            alert('You must have at least one phase');
+        }
+    });
 }
 
 function handleFormSubmit(e) {
