@@ -91,7 +91,7 @@ def calculate_forecast(inputs, scenario):
 
         # Calculate the forecast
         forecast = []
-        for i in range(1, time_frame+payment_lag):
+        for i in range(1, time_frame+payment_lag+1):
             # Calculate the cash in and cash out
             # billing_milestones is a dict with month indices (0-based) and percentages
             milestone_key = str(i - payment_lag) if i >= payment_lag else None
@@ -103,7 +103,7 @@ def calculate_forecast(inputs, scenario):
                 cash_out = monthly_burn + monthly_expense + (contingency_percent * monthly_expense)
             net_cash = cash_in - cash_out
             cumulative_net_cash += net_cash
-            if i == 0:
+            if i == 1:
                 cash_out += upfront_cost
                 cumulative_net_cash -= upfront_cost
             forecast.append({
@@ -114,7 +114,7 @@ def calculate_forecast(inputs, scenario):
             })
 
             # Set the minimum net cash and the minimum net cash month
-            if i == 0:
+            if i == 1:
                 min_net_cash = cumulative_net_cash
             else:
                 if cumulative_net_cash < min_net_cash:
@@ -137,6 +137,8 @@ def calculate_forecast(inputs, scenario):
         # Calculate the gross margin and the margin with contingency
         gross_margin = (contract_value - (monthly_expense*time_frame)) / contract_value
         margin_w_contingency = (contract_value - (contingency_percent*monthly_expense*time_frame)) / contract_value
+
+        print(forecast)
 
         return {
             'forecast': forecast,
