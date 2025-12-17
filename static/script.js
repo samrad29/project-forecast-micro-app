@@ -33,6 +33,47 @@ function addMilestoneRow() {
     });
 }
 
+function addUnexpectedCostsRow() {
+    const container = document.getElementById('unexpected-costs-container');
+    const row = document.createElement('div');
+    row.className = 'unexpected-costs-entry';
+    row.innerHTML = `
+        <input type="text" class="phase-name" placeholder="Phase Name">
+        <input type="number" class="unexpected-costs-percent" placeholder="Unexpected Costs % per month" min="0" max="100" step="0.01">
+        <button type="button" class="remove-unexpected-costs">Remove</button>
+    `;
+    container.appendChild(row);
+}
+
+function addDelayRow() {
+    const container = document.getElementById('delay-container');
+    const row = document.createElement('div');
+    row.className = 'delay-entry';
+    row.innerHTML = `
+        <input type="text" class="delay-start-date" placeholder="Start Month">
+        <input type="number" class="delay-length" placeholder="Delay Length (months)">
+        <input type="number" class="delay-expense" placeholder="Delay Expense Monthly (excluding overhead)">
+        <button type="button" class="remove-delay">Remove</button>
+    `;
+    
+    container.appendChild(row);
+}
+
+function addPhaseRow() {
+    const container = document.getElementById('phase-container');
+    const row = document.createElement('div');
+    row.className = 'phase-entry';
+    row.innerHTML = `
+        <input type="text" class="phase-name" placeholder="Phase Name">
+        <input type="number" class="phase-length" placeholder="Phase Length (months)">
+        <input type="number" class="phase-expense" placeholder="Project Expense">
+        <input type="number" class="phase-contingency" placeholder="Overhead">
+        <input type="number" class="phase-upfront" placeholder="Upfront Cost">
+        <button type="button" class="remove-phase">Remove</button>
+    `;
+    container.appendChild(row);
+}
+
 function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -41,12 +82,8 @@ function handleFormSubmit(e) {
         contract_value: parseFloat(document.getElementById('contract_value').value),
         time_frame: parseInt(document.getElementById('time_frame').value),
         payment_lag: parseInt(document.getElementById('payment_lag').value),
-        monthly_expense: parseFloat(document.getElementById('monthly_expense').value),
-        monthly_burn: parseFloat(document.getElementById('monthly_burn').value),
         contingency_percent: parseFloat(document.getElementById('contingency_percent').value) / 100,
-        upfront_cost: parseFloat(document.getElementById('upfront_cost').value),
-        cash_floor: parseFloat(document.getElementById('cash_floor').value),
-        scenario: document.getElementById('scenario').value
+        cash_floor: parseFloat(document.getElementById('cash_floor').value)
     };
     
     // Collect billing milestones
@@ -67,7 +104,60 @@ function handleFormSubmit(e) {
     
     formData.billing_milestones = milestones;
     console.log(formData.billing_milestones);
-    
+
+    // Collect phase data
+    const phases = {};
+    const phaseRows = document.querySelectorAll('.phase-entry');
+    phaseRows.forEach(row => {
+        const phaseName = row.querySelector('.phase-name').value;
+        const phaseLength = row.querySelector('.phase-length').value;
+        const phaseExpense = row.querySelector('.phase-expense').value;
+        const phaseOverhead = row.querySelector('.phase-contingency').value;
+        const phaseUpfront = row.querySelector('.phase-upfront').value;
+        phases[phaseName] = {
+            length: phaseLength,
+            expense: phaseExpense,
+            overhead: phaseOverhead,
+            upfront: phaseUpfront
+        };
+    });
+
+    if (Object.keys(phases).length === 0) {
+        alert('Please add at least one phase');
+        return;
+    }
+    formData.phases = phases;
+
+    // Collect delay data
+    const delays = {};
+    const delayRows = document.querySelectorAll('.delay-entry');
+    delayRows.forEach(row => {
+        const delayStartDate = row.querySelector('.delay-start-date').value;
+        const delayLength = row.querySelector('.delay-length').value;
+        const delayExpense = row.querySelector('.delay-expense').value;
+        delays[delayStartDate] = {
+            length: delayLength,
+            expense: delayExpense
+        };
+    });
+    if (Object.keys(delays).length > 0) {
+        formData.delays = delays;
+        console.log('Delays added');
+    }
+
+    // Collect unexpected costs data
+    const unexpectedCosts = {};
+    const unexpectedCostRows = document.querySelectorAll('.unexpected-costs-entry');
+    unexpectedCostRows.forEach(row => {
+        const unexpectedCostName = row.querySelector('.phase-name').value;
+        const unexpectedCostPercent = row.querySelector('.unexpected-costs-percent').value;
+        unexpectedCosts[unexpectedCostName] = unexpectedCostPercent / 100;
+    });
+    if (Object.keys(unexpectedCosts).length > 0) {
+        formData.unexpected_costs = unexpectedCosts;
+        console.log('Unexpected costs added');
+    }
+
     // Show loading state
     const resultsSection = document.getElementById('resultsSection');
     resultsSection.style.display = 'block';
@@ -278,6 +368,7 @@ function populateTable(forecastData) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${index + 1}</td>
+            <td>${month.phase}</td>
             <td>${formatCurrency(month.cash_in)}</td>
             <td>${formatCurrency(month.cash_out)}</td>
             <td class="${month.net_cash >= 0 ? 'positive' : 'negative'}">

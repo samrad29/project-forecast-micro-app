@@ -19,6 +19,11 @@
                     <p class="subtitle">Project & Contract Financial Planning</p>
                 </div>
             </div>
+            <div class="header-buttons">
+                <button class="btn-primary">Projects</button>
+                <button class="btn-secondary">Overview</button>
+                <button class="btn-secondary">Project Cash Flow Calculator</button>
+            </div>
         </header>
 
         <div class="main-content">
@@ -44,31 +49,31 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="monthly_expense">Monthly Expense ($)</label>
-                            <input type="number" id="monthly_expense" name="monthly_expense" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="monthly_burn">Monthly Burn Rate ($)</label>
-                            <input type="number" id="monthly_burn" name="monthly_burn" step="0.01" value="0" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
                             <label for="contingency_percent">Contingency (%)</label>
                             <input type="number" id="contingency_percent" name="contingency_percent" step="0.01" min="0" max="100" value="10" required>
                             <small>Additional buffer for unexpected costs</small>
                         </div>
                         <div class="form-group">
-                            <label for="upfront_cost">Upfront Cost ($)</label>
-                            <input type="number" id="upfront_cost" name="upfront_cost" step="0.01" value="0" required>
+                            <label for="cash_floor">Minimum Cash Floor ($)</label>
+                            <input type="number" id="cash_floor" name="cash_floor" step="0.01" value="0" required>
+                            <small>Minimum cash balance to maintain</small>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="cash_floor">Minimum Cash Floor ($)</label>
-                        <input type="number" id="cash_floor" name="cash_floor" step="0.01" value="0" required>
-                        <small>Minimum cash balance to maintain</small>
+                        <label for="phase_expense">Expenses by Phase</label>
+                        <div id="phase_expense_container">
+                            <div class="phase-entry">
+                                <input type="text" class="phase-name" placeholder="Phase Name">
+                                <input type="number" class="phase-length" placeholder="Phase Length (months)">
+                                <input type="number" class="phase-expense" placeholder="Project Expense">
+                                <input type="number" class="phase-contingency" placeholder="Overhead">
+                                <input type="number" class="phase-upfront" placeholder="Upfront Cost">
+                                <button type="button" class="remove-phase">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-phase" class="btn-secondary">Add Phase</button>
+                        <small>Enter phase length, expense, overhead, and upfront cost</small>
                     </div>
 
                     <div class="form-group">
@@ -85,13 +90,31 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="scenario">Scenario</label>
-                        <select id="scenario" name="scenario">
-                            <option value="base">Base Case</option>
-                            <option value="worst_case">Worst Case</option>
-                            <option value="delayed">Delayed</option>
-                            <option value="over_budget">Over Budget</option>
-                        </select>
+                        <label for="scenario">Delays</label>
+                        <div id="delay-container">
+                            <div class="phase-entry">
+                                <input type="text" class="delay-start-date" placeholder="Start Month">
+                                <input type="number" class="delay-length" placeholder="Delay Length (months)">
+                                <input type="number" class="delay-expense" placeholder="Delay Expense Monthly (excluding overhead)">
+                                <button type="button" class="remove-delay">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-delay" class="btn-secondary">Add Delay</button>
+                        <small>Enter delay length and expense</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scenario">Unexpected Costs</label>
+                        <div id="unexpected-costs-container">
+                            <div class="phase-entry">
+                                <input type="text" class="phase-name" placeholder="Phase Name">
+                                <input type="number" class="unexpected-costs-percent" placeholder="Unexpected Costs % per month" min="0" max="100" step="0.01">
+                                <button type="button" class="remove-unexpected-costs">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-unexpected-costs" class="btn-secondary">Add Unexpected Costs</button>
+                        <input type="number" id="unexpected_costs" name="unexpected_costs" step="0.01" value="0" required>
+                        <small>Enter unexpected costs as a percentage of the contract value</small>
                     </div>
 
                     <button type="submit" class="btn-primary">Generate Forecast</button>
@@ -130,6 +153,7 @@
                         <thead>
                             <tr>
                                 <th>Month</th>
+                                <th>Phase</th>
                                 <th>Cash In</th>
                                 <th>Cash Out</th>
                                 <th>Net Cash</th>
