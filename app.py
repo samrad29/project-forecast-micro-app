@@ -1,11 +1,47 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import json
+import sqlite3
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+
+# Database setup
+DATABASE = 'projects.db'
+
+def get_db():
+    """Get database connection"""
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    """Initialize the database with projects table"""
+    conn = get_db()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS projects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            contract_value REAL NOT NULL,
+            time_frame INTEGER NOT NULL,
+            payment_lag INTEGER NOT NULL,
+            contingency_percent REAL NOT NULL,
+            cash_floor REAL NOT NULL,
+            phases TEXT NOT NULL,
+            delays TEXT NOT NULL,
+            unexpected_costs TEXT NOT NULL,
+            billing_milestones TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Initialize database on startup
+init_db()
 
 
 @app.route('/')
@@ -45,6 +81,41 @@ def validate_inputs(inputs):
     """Validate the inputs"""
     """Leaving this function empty for now"""
     return True
+
+@app.route('/create_project', methods=['POST'])
+def create_project_route():
+    """Create and save a project"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'message': 'No data provided'}), 400
+        
+        project_name = data.get('name', '')
+        if not project_name:
+            return jsonify({'success': False, 'message': 'Project name is required'}), 400
+        
+        inputs = data.get('inputs')
+        if not inputs:
+            return jsonify({'success': False, 'message': 'No inputs provided'}), 400
+        if not validate_inputs(inputs):
+            return jsonify({'success': False, 'message': 'Invalid inputs provided'}), 400
+        
+        parsed_inputs = parse_inputs(inputs)
+        if not parsed_inputs or (isinstance(parsed_inputs, dict) and parsed_inputs.get('success') == False):
+            return jsonify({'success': False, 'message': 'Failed to parse inputs'}), 400
+        
+        # Save the project to database
+        project_id = save_project_to_db(project_name, parsed_inputs, inputs)
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Project created successfully', 
+            'project_id': project_id,
+            'project_name': project_name
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 # list of inputs used:
 # Contract Value
 # Project start date
@@ -54,9 +125,10 @@ def validate_inputs(inputs):
 # Payment lag -- what is this?
 # Billing Milstones -- what is this?
 
-def calculate_forecast(inputs, scenario):
-    """Generate the forecast"""
+def parse_inputs(inputs):
+    """Parse the inputs"""
     try:
+        # Parse the inputs
         # Setup - Convert all inputs to proper types
         time_frame = int(inputs['time_frame'])
         payment_lag = int(inputs['payment_lag'])
@@ -107,6 +179,34 @@ def calculate_forecast(inputs, scenario):
         delays = delays_processed
         unexpected_costs = unexpected_costs_processed
         billing_milestones = billing_milestones_processed
+
+        return {
+            'time_frame': time_frame,
+            'payment_lag': payment_lag,
+            'contract_value': contract_value,
+            'min_cash_allowed': min_cash_allowed,
+            'contingency_percent': contingency_percent,
+            'phases': phases,
+            'delays': delays,
+            'unexpected_costs': unexpected_costs,
+            'billing_milestones': billing_milestones
+        }
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+def calculate_forecast(parsed_inputs):
+    """Generate the forecast"""
+    try:
+        time_frame = parsed_inputs['time_frame']
+        payment_lag = parsed_inputs['payment_lag']
+        contract_value = parsed_inputs['contract_value']
+        min_cash_allowed = parsed_inputs['min_cash_allowed']
+        contingency_percent = parsed_inputs['contingency_percent']
+        phases = parsed_inputs['phases']
+        delays = parsed_inputs['delays']
+        unexpected_costs = parsed_inputs['unexpected_costs']
+        billing_milestones = parsed_inputs['billing_milestones']
+        print("Inputs Setup Complete")
 
         min_net_cash = 0
         min_net_cash_month = 0
@@ -266,6 +366,46 @@ def calculate_forecast(inputs, scenario):
     except Exception as e:
         print("Exception in generate_forecast: ", e)
         return jsonify({'success': False, 'message': str(e)}), 500
+
+def save_project_to_db(project_name, parsed_inputs, original_inputs):
+    """Save project to SQLite database"""
+    try:
+        conn = get_db()
+        
+        # Convert complex data structures to JSON strings for storage
+        phases_json = json.dumps(parsed_inputs['phases'])
+        delays_json = json.dumps({str(k): v for k, v in parsed_inputs['delays'].items()})
+        unexpected_costs_json = json.dumps(parsed_inputs['unexpected_costs'])
+        billing_milestones_json = json.dumps(parsed_inputs['billing_milestones'])
+        
+        cursor = conn.execute('''
+            INSERT INTO projects (
+                name, contract_value, time_frame, payment_lag, 
+                contingency_percent, cash_floor, phases, delays, 
+                unexpected_costs, billing_milestones
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            project_name,
+            parsed_inputs['contract_value'],
+            parsed_inputs['time_frame'],
+            parsed_inputs['payment_lag'],
+            parsed_inputs['contingency_percent'],
+            parsed_inputs['min_cash_allowed'],
+            phases_json,
+            delays_json,
+            unexpected_costs_json,
+            billing_milestones_json
+        ))
+        
+        project_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        print(f"Project '{project_name}' saved with ID: {project_id}")
+        return project_id
+    except Exception as e:
+        print(f"Error saving project: {e}")
+        raise
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

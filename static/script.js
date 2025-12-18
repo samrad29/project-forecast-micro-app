@@ -1,4 +1,5 @@
 let cashFlowChart = null;
+let currentFormData = null; // Store form data for saving projects
 
 // Initialize milestones
 document.addEventListener('DOMContentLoaded', function() {
@@ -182,7 +183,7 @@ function handleFormSubmit(e) {
     e.preventDefault();
     
     // Collect form data
-    const formData = {
+    let formData = {
         contract_value: parseFloat(document.getElementById('contract_value').value),
         time_frame: parseInt(document.getElementById('time_frame').value),
         payment_lag: parseInt(document.getElementById('payment_lag').value),
@@ -261,6 +262,9 @@ function handleFormSubmit(e) {
         formData.unexpected_costs = unexpectedCosts;
         console.log('Unexpected costs added');
     }
+    
+    // Store form data globally for saving projects
+    currentFormData = formData;
 
     // Show loading state
     const resultsSection = document.getElementById('resultsSection');
@@ -349,6 +353,10 @@ function displayResults(forecast) {
                 </tbody>
             </table>
         </div>
+        
+        <div class="save-project-container">
+            <button type="button" id="saveProjectBtn" class="btn-primary">Save Project</button>
+        </div>
     `;
     
     // Update summary cards
@@ -371,6 +379,101 @@ function displayResults(forecast) {
     
     // Populate table
     populateTable(forecast.forecast);
+    
+    // Setup save project button
+    setupSaveProjectButton();
+}
+
+function setupSaveProjectButton() {
+    const saveBtn = document.getElementById('saveProjectBtn');
+    const modal = document.getElementById('saveProjectModal');
+    const closeBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelSaveBtn');
+    const saveForm = document.getElementById('saveProjectForm');
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    // Handle form submission
+    if (saveForm) {
+        saveForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveProject();
+        });
+    }
+}
+
+function saveProject() {
+    const projectNameInput = document.getElementById('projectName');
+    const projectName = projectNameInput.value.trim();
+    const saveForm = document.getElementById('saveProjectForm');
+    
+    if (!projectName) {
+        alert('Please enter a project name');
+        return;
+    }
+    
+    if (!currentFormData) {
+        alert('No project data to save');
+        return;
+    }
+    
+    // Show loading state
+    const saveBtn = saveForm.querySelector('button[type="submit"]');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
+    
+    // Send save request
+    fetch('/create_project', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name: projectName,
+            inputs: currentFormData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Project "${projectName}" saved successfully!`);
+            document.getElementById('saveProjectModal').style.display = 'none';
+            saveForm.reset();
+        } else {
+            alert('Error saving project: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        alert('Network error: ' + error.message);
+    })
+    .finally(() => {
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
+    });
 }
 
 function createChart(forecastData) {

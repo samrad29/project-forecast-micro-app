@@ -174,7 +174,31 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <div class="save-project-container">
+                    <button type="button" id="saveProjectBtn" class="btn-primary">Save Project</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Save Project Modal -->
+    <div id="saveProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Save Project</h3>
+                <button type="button" class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="saveProjectForm">
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" name="projectName" required placeholder="Enter project name">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelSaveBtn">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 
