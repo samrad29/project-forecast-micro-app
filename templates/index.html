@@ -21,17 +21,19 @@
             </div>
             <div class="header-buttons">
                 <div class="header-buttons-left">
-                <button class="btn-primary">Projects</button>
+                <button class="btn-primary" id="projectsBtn">Projects</button>
                 </div>
                 <div class="header-buttons-center">
-                    <button class="btn-primary">Overview</button>
+                    <button class="btn-primary" id="overviewBtn">Overview</button>
                 </div>
                 <div class="header-buttons-right">
-                    <button class="btn-primary">Project Cash Flow Calculator</button>
+                    <button class="btn-primary active" id="calculatorBtn">Project Cash Flow Calculator</button>
                 </div>
             </div>
         </header>
 
+        <!-- Calculator View (Default) -->
+        <div class="view-container" id="calculatorView">
         <div class="main-content">
             <div class="form-section" id="formSection">
                 <div class="form-section-header">
@@ -178,6 +180,25 @@
                 <div class="save-project-container">
                     <button type="button" id="saveProjectBtn" class="btn-primary">Save Project</button>
                 </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Projects View -->
+        <div class="view-container" id="projectsView" style="display: none;">
+            <div class="projects-section">
+                <h2>Saved Projects</h2>
+                <div id="projectsTableContainer">
+                    <div class="loading">Loading projects...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview View -->
+        <div class="view-container" id="overviewView" style="display: none;">
+            <div class="overview-section">
+                <h2>Overview</h2>
+                <p class="placeholder-text">Overview will display here</p>
             </div>
         </div>
     </div>

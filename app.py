@@ -82,6 +82,37 @@ def validate_inputs(inputs):
     """Leaving this function empty for now"""
     return True
 
+@app.route('/get_projects', methods=['GET'])
+def get_projects():
+    """Get all saved projects"""
+    try:
+        conn = get_db()
+        projects = conn.execute('''
+            SELECT id, name, contract_value, time_frame, payment_lag, 
+                   contingency_percent, cash_floor, created_at, updated_at
+            FROM projects
+            ORDER BY created_at DESC
+        ''').fetchall()
+        conn.close()
+        
+        projects_list = []
+        for project in projects:
+            projects_list.append({
+                'id': project['id'],
+                'name': project['name'],
+                'contract_value': project['contract_value'],
+                'time_frame': project['time_frame'],
+                'payment_lag': project['payment_lag'],
+                'contingency_percent': project['contingency_percent'],
+                'cash_floor': project['cash_floor'],
+                'created_at': project['created_at'],
+                'updated_at': project['updated_at']
+            })
+        
+        return jsonify({'success': True, 'projects': projects_list})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/create_project', methods=['POST'])
 def create_project_route():
     """Create and save a project"""

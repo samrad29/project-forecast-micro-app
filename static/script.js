@@ -42,7 +42,133 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleFormBtn.textContent = formSection.classList.contains('minimized') ? 'Expand' : 'Minimize';
         });
     }
+    
+    // Setup header navigation buttons
+    setupNavigationButtons();
 });
+
+function setupNavigationButtons() {
+    const projectsBtn = document.getElementById('projectsBtn');
+    const overviewBtn = document.getElementById('overviewBtn');
+    const calculatorBtn = document.getElementById('calculatorBtn');
+    
+    const projectsView = document.getElementById('projectsView');
+    const overviewView = document.getElementById('overviewView');
+    const calculatorView = document.getElementById('calculatorView');
+    
+    // Projects button
+    if (projectsBtn) {
+        projectsBtn.addEventListener('click', function() {
+            switchView('projects');
+        });
+    }
+    
+    // Overview button
+    if (overviewBtn) {
+        overviewBtn.addEventListener('click', function() {
+            switchView('overview');
+        });
+    }
+    
+    // Calculator button
+    if (calculatorBtn) {
+        calculatorBtn.addEventListener('click', function() {
+            switchView('calculator');
+        });
+    }
+}
+
+function switchView(viewName) {
+    // Hide all views
+    document.getElementById('projectsView').style.display = 'none';
+    document.getElementById('overviewView').style.display = 'none';
+    document.getElementById('calculatorView').style.display = 'none';
+    
+    // Remove active class from all buttons
+    document.getElementById('projectsBtn').classList.remove('active');
+    document.getElementById('overviewBtn').classList.remove('active');
+    document.getElementById('calculatorBtn').classList.remove('active');
+    
+    // Show selected view and activate button
+    if (viewName === 'projects') {
+        document.getElementById('projectsView').style.display = 'block';
+        document.getElementById('projectsBtn').classList.add('active');
+        loadProjects();
+    } else if (viewName === 'overview') {
+        document.getElementById('overviewView').style.display = 'block';
+        document.getElementById('overviewBtn').classList.add('active');
+    } else {
+        document.getElementById('calculatorView').style.display = 'block';
+        document.getElementById('calculatorBtn').classList.add('active');
+    }
+}
+
+function loadProjects() {
+    const container = document.getElementById('projectsTableContainer');
+    container.innerHTML = '<div class="loading">Loading projects...</div>';
+    
+    fetch('/get_projects')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayProjects(data.projects);
+            } else {
+                container.innerHTML = `<div class="error">Error loading projects: ${data.message || 'Unknown error'}</div>`;
+            }
+        })
+        .catch(error => {
+            container.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+        });
+}
+
+function displayProjects(projects) {
+    const container = document.getElementById('projectsTableContainer');
+    
+    if (projects.length === 0) {
+        container.innerHTML = '<p class="no-projects">No projects saved yet. Create a forecast and save it to see it here.</p>';
+        return;
+    }
+    
+    let html = `
+        <table class="projects-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Contract Value</th>
+                    <th>Duration (months)</th>
+                    <th>Payment Lag</th>
+                    <th>Contingency %</th>
+                    <th>Cash Floor</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    projects.forEach(project => {
+        const createdDate = new Date(project.created_at).toLocaleDateString();
+        html += `
+            <tr>
+                <td>${project.id}</td>
+                <td>${project.name}</td>
+                <td>${formatCurrency(project.contract_value)}</td>
+                <td>${project.time_frame}</td>
+                <td>${project.payment_lag}</td>
+                <td>${(project.contingency_percent * 100).toFixed(1)}%</td>
+                <td>${formatCurrency(project.cash_floor)}</td>
+                <td>${createdDate}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    container.innerHTML = html;
+}
 
 function initializeRemoveButtons() {
     // Initialize remove buttons for existing phase entries

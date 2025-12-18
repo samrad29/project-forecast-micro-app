@@ -598,3 +598,69 @@ tbody tr:last-child td {
     padding: 10px 24px;
 }
 
+/* View Container Styles */
+.view-container {
+    min-height: 400px;
+}
+
+.projects-section,
+.overview-section {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+    margin-top: 30px;
+}
+
+.projects-section h2,
+.overview-section h2 {
+    color: #2c2c2c;
+    margin-bottom: 20px;
+}
+
+.projects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.projects-table thead {
+    background: #2c2c2c;
+    color: white;
+}
+
+.projects-table th,
+.projects-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.projects-table th {
+    font-weight: 600;
+}
+
+.projects-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+.no-projects {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 1.1rem;
+}
+
+.placeholder-text {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 1.1rem;
+}
+
+.header-buttons button.active {
+    background: #ff7700;
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+}
+
