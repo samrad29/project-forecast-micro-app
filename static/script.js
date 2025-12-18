@@ -135,6 +135,7 @@ function displayProjects(projects) {
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Start Date</th>
                     <th>Contract Value</th>
                     <th>Duration (months)</th>
                     <th>Payment Lag</th>
@@ -148,10 +149,12 @@ function displayProjects(projects) {
     
     projects.forEach(project => {
         const createdDate = new Date(project.created_at).toLocaleDateString();
+        const startDate = project.start_date ? new Date(project.start_date).toLocaleDateString() : 'N/A';
         html += `
             <tr>
                 <td>${project.id}</td>
                 <td>${project.name}</td>
+                <td>${startDate}</td>
                 <td>${formatCurrency(project.contract_value)}</td>
                 <td>${project.time_frame}</td>
                 <td>${project.payment_lag}</td>
@@ -310,6 +313,7 @@ function handleFormSubmit(e) {
     
     // Collect form data
     let formData = {
+        start_date: document.getElementById('start_date').value,
         contract_value: parseFloat(document.getElementById('contract_value').value),
         time_frame: parseInt(document.getElementById('time_frame').value),
         payment_lag: parseInt(document.getElementById('payment_lag').value),

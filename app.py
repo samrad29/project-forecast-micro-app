@@ -24,6 +24,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            start_date TEXT,
             contract_value REAL NOT NULL,
             time_frame INTEGER NOT NULL,
             payment_lag INTEGER NOT NULL,
@@ -37,7 +38,12 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    conn.commit()
+    # Add start_date column if it doesn't exist (migration)
+    try:
+        conn.execute('ALTER TABLE projects ADD COLUMN start_date TEXT')
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass  # Column already exists
     conn.close()
 
 # Initialize database on startup
@@ -88,7 +94,7 @@ def get_projects():
     try:
         conn = get_db()
         projects = conn.execute('''
-            SELECT id, name, contract_value, time_frame, payment_lag, 
+            SELECT id, name, start_date, contract_value, time_frame, payment_lag, 
                    contingency_percent, cash_floor, created_at, updated_at
             FROM projects
             ORDER BY created_at DESC
@@ -100,6 +106,7 @@ def get_projects():
             projects_list.append({
                 'id': project['id'],
                 'name': project['name'],
+                'start_date': project['start_date'] or '',
                 'contract_value': project['contract_value'],
                 'time_frame': project['time_frame'],
                 'payment_lag': project['payment_lag'],
@@ -409,14 +416,17 @@ def save_project_to_db(project_name, parsed_inputs, original_inputs):
         unexpected_costs_json = json.dumps(parsed_inputs['unexpected_costs'])
         billing_milestones_json = json.dumps(parsed_inputs['billing_milestones'])
         
+        start_date = original_inputs.get('start_date', '')
+        
         cursor = conn.execute('''
             INSERT INTO projects (
-                name, contract_value, time_frame, payment_lag, 
+                name, start_date, contract_value, time_frame, payment_lag, 
                 contingency_percent, cash_floor, phases, delays, 
                 unexpected_costs, billing_milestones
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             project_name,
+            start_date,
             parsed_inputs['contract_value'],
             parsed_inputs['time_frame'],
             parsed_inputs['payment_lag'],
