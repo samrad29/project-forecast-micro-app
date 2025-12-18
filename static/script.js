@@ -338,6 +338,7 @@ function displayResults(forecast) {
                 <thead>
                     <tr>
                         <th>Month</th>
+                        <th>Phase</th>
                         <th>Cash In</th>
                         <th>Cash Out</th>
                         <th>Net Cash</th>

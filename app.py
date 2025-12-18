@@ -133,6 +133,7 @@ def calculate_forecast(inputs, scenario):
         current_phase_upfront = float(phases[current_phase]['upfront'])
         phase_change = True
         cumulative_cash_out = 0
+        delay_start = 0
         # Calculate the forecast
         forecast = []
 
@@ -145,18 +146,21 @@ def calculate_forecast(inputs, scenario):
                 cumulative_delays += int(delays[i]['length'])
                 current_delay = True
                 delay_remaining = int(delays[i]['length']) - 1
+                delay_start = i
             elif current_delay and delay_remaining > 0:
                 delay_remaining -= 1
             else:
                 current_delay = False
                 delay_remaining = 0
+                delay_start = 0
 
             print("Delay Determined")
 
             # Determine current phase
             # If the current phase is not complete, decrement the remaining months and set the phase change to false
             if current_phase_remaining > 0:
-                current_phase_remaining -= 1
+                if not current_delay:
+                    current_phase_remaining -= 1
                 phase_change = False
             else:
                 # Get next phase (this is a simplified version - you may want to track phase order)
@@ -195,8 +199,10 @@ def calculate_forecast(inputs, scenario):
             # During a delay, the cash out is just the delay expense plus overhead
             # Overhead does not apply to cumulative expense that is uses for gross margin calculation
             if current_delay:
-                cumulative_expenses += delays[i]['expense']
-                cash_out = delays[i]['expense'] + phases[i]['overhead']
+                if delay_start in delays:
+                    delay_expense = float(delays[delay_start]['expense'])
+                    cumulative_expenses += delay_expense
+                    cash_out = delay_expense + current_phase_overhead
             else:
                 cumulative_expenses += current_phase_expense + (contingency_percent * current_phase_expense) + unexpected_cost
                 cash_out = current_phase_expense + current_phase_overhead + (contingency_percent * current_phase_expense) + unexpected_cost
