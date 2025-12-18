@@ -57,20 +57,56 @@ def validate_inputs(inputs):
 def calculate_forecast(inputs, scenario):
     """Generate the forecast"""
     try:
-        # Setup
-        time_frame = inputs['time_frame']
+        # Setup - Convert all inputs to proper types
+        time_frame = int(inputs['time_frame'])
+        payment_lag = int(inputs['payment_lag'])
+        contract_value = float(inputs['contract_value'])
+        min_cash_allowed = float(inputs['cash_floor'])
+        contingency_percent = float(inputs['contingency_percent'])
 
-        phases = inputs['phases']
-        delays = inputs['delays']
-        unexpected_costs = inputs['unexpected_costs']
+        print("Inputs converted")
 
-        contingency_percent = inputs['contingency_percent']
-        payment_lag = inputs['payment_lag']
+        phases = inputs.get('phases', {})
+        delays = inputs.get('delays', {})
+        unexpected_costs = inputs.get('unexpected_costs', {})
+        billing_milestones = inputs.get('billing_milestones', {})
 
-        billing_milestones = inputs['billing_milestones']
-        contract_value = inputs['contract_value']
-        min_cash_allowed = inputs['cash_floor']
+        # Convert delay values to proper types
+        delays_processed = {}
+        for key, delay in delays.items():
+            if key is not None and key != '':
+                delays_processed[int(key)] = {
+                    'length': int(delay.get('length', 0)),
+                    'expense': float(delay.get('expense', 0))
+                }
+        print("Delays converted")
 
+        # Convert phase values to proper types
+        phases_processed = {}
+        for phase_name, phase_data in phases.items():
+            phases_processed[str(phase_name)] = {
+                'length': int(phase_data.get('length', 0)),
+                'expense': float(phase_data.get('expense', 0)),
+                'overhead': float(phase_data.get('overhead', 0)),
+                'upfront': float(phase_data.get('upfront', 0))
+            }
+        print("Phases converted")
+
+        # Convert unexpected costs to proper types
+        unexpected_costs_processed = {}
+        for key, value in unexpected_costs.items():
+            unexpected_costs_processed[str(key)] = float(value)
+        print("Unexpected costs converted")
+        # Convert billing milestones keys to strings (they come as strings from frontend)
+        billing_milestones_processed = {}
+        for key, value in billing_milestones.items():
+            billing_milestones_processed[str(key)] = float(value)
+        print("Billing milestones converted")
+
+        phases = phases_processed
+        delays = delays_processed
+        unexpected_costs = unexpected_costs_processed
+        billing_milestones = billing_milestones_processed
 
         min_net_cash = 0
         min_net_cash_month = 0
@@ -85,12 +121,18 @@ def calculate_forecast(inputs, scenario):
         current_delay = False
         delay_remaining = 0
 
+        print("Total delays calculated")
+
+        if not phases:
+            return {'success': False, 'message': 'No phases provided'}
+        
         current_phase = next(iter(phases))
-        current_phase_remaining = phases[current_phase]['length'] - 1
-        current_phase_expense = phases[current_phase]['expense']
-        current_phase_overhead = phases[current_phase]['overhead']
-        current_phase_upfront = phases[current_phase]['upfront']
+        current_phase_remaining = int(phases[current_phase]['length']) - 1
+        current_phase_expense = float(phases[current_phase]['expense'])
+        current_phase_overhead = float(phases[current_phase]['overhead'])
+        current_phase_upfront = float(phases[current_phase]['upfront'])
         phase_change = True
+        cumulative_cash_out = 0
         # Calculate the forecast
         forecast = []
 
@@ -100,9 +142,9 @@ def calculate_forecast(inputs, scenario):
             # If the current month is a delay, set the current delay to true and decrement the delay remaining
             # If the delay remaining is 0, set the current delay to false
             if i in delays:
-                cumulative_delays += delays[i]['length']
+                cumulative_delays += int(delays[i]['length'])
                 current_delay = True
-                delay_remaining = delays[i]['length'] - 1
+                delay_remaining = int(delays[i]['length']) - 1
             elif current_delay and delay_remaining > 0:
                 delay_remaining -= 1
             else:
@@ -117,11 +159,15 @@ def calculate_forecast(inputs, scenario):
                 current_phase_remaining -= 1
                 phase_change = False
             else:
-                current_phase = next(iter(phases))
-                current_phase_remaining = phases[current_phase]['length'] - 1
-                current_phase_expense = phases[current_phase]['expense']
-                current_phase_overhead = phases[current_phase]['overhead']
-                current_phase_upfront = phases[current_phase]['upfront']
+                # Get next phase (this is a simplified version - you may want to track phase order)
+                phase_list = list(phases.keys())
+                current_index = phase_list.index(current_phase) if current_phase in phase_list else 0
+                next_index = (current_index + 1) % len(phase_list)
+                current_phase = phase_list[next_index]
+                current_phase_remaining = int(phases[current_phase]['length']) - 1
+                current_phase_expense = float(phases[current_phase]['expense'])
+                current_phase_overhead = float(phases[current_phase]['overhead'])
+                current_phase_upfront = float(phases[current_phase]['upfront'])
                 phase_change = True
 
             print("Phase Determined")
@@ -146,12 +192,9 @@ def calculate_forecast(inputs, scenario):
 
             print("Cash In Determined")
 
-            # If the month is after the time frame, the cash out is just the monthly burn
-            if i > time_frame:
-                cash_out = monthly_burn
             # During a delay, the cash out is just the delay expense plus overhead
             # Overhead does not apply to cumulative expense that is uses for gross margin calculation
-            elif current_delay:
+            if current_delay:
                 cumulative_expenses += delays[i]['expense']
                 cash_out = delays[i]['expense'] + phases[i]['overhead']
             else:
@@ -162,6 +205,7 @@ def calculate_forecast(inputs, scenario):
 
             net_cash = cash_in - cash_out
             cumulative_net_cash += net_cash
+            cumulative_cash_out += cash_out
 
             if phase_change:
                 net_cash -= current_phase_upfront
@@ -196,7 +240,7 @@ def calculate_forecast(inputs, scenario):
                 
         print("made it through loop")
         # If the contract value is less than the monthly expense multiplied by the time frame, the project is not profitable
-        if contract_value < contingency_percent*monthly_expense*time_frame:
+        if contract_value < cumulative_cash_out:
             verdict = 'Not Profitable'
 
         # Calculate the gross margin and the margin with contingency
@@ -209,7 +253,6 @@ def calculate_forecast(inputs, scenario):
             'verdict': verdict,
             'payback_period': payback_period,
             'gross_margin': gross_margin,
-            'margin_w_contingency': margin_w_contingency,
             'min_net_cash': min_net_cash,
             'min_net_cash_month': min_net_cash_month,
             'cumulative_net_cash': cumulative_net_cash

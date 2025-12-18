@@ -269,7 +269,11 @@ function handleFormSubmit(e) {
     
     // Minimize form section after submission
     const formSection = document.getElementById('formSection');
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
     formSection.classList.add('minimized');
+    if (toggleFormBtn) {
+        toggleFormBtn.textContent = 'Expand';
+    }
     
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
