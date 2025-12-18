@@ -74,8 +74,10 @@ def generate_forecast_route():
         if not validate_inputs(inputs):
             return jsonify({'success': False, 'message': 'Invalid inputs provided'}), 400
 
+        print("Inputs validated")
+        parsed_inputs = parse_inputs(inputs)
         # Generate the forecast
-        forecast_result = calculate_forecast(inputs, scenario)
+        forecast_result = calculate_forecast(parsed_inputs)
 
         # Return the forecast
         return jsonify({'success': True, 'message':'Forecast generated successfully', 'forecast': forecast_result})
@@ -296,7 +298,7 @@ def calculate_forecast(parsed_inputs):
 
             # Determine current phase
             # If the current phase is not complete, decrement the remaining months and set the phase change to false
-            if current_phase_remaining > 0:
+            if current_phase_remaining >= 0:
                 if not current_delay:
                     current_phase_remaining -= 1
                 phase_change = False
@@ -305,12 +307,20 @@ def calculate_forecast(parsed_inputs):
                 phase_list = list(phases.keys())
                 current_index = phase_list.index(current_phase) if current_phase in phase_list else 0
                 next_index = (current_index + 1) % len(phase_list)
-                current_phase = phase_list[next_index]
-                current_phase_remaining = int(phases[current_phase]['length']) - 1
-                current_phase_expense = float(phases[current_phase]['expense'])
-                current_phase_overhead = float(phases[current_phase]['overhead'])
-                current_phase_upfront = float(phases[current_phase]['upfront'])
-                phase_change = True
+                if next_index == 0:
+                    current_phase = None
+                    current_phase_remaining = 99
+                    phase_change = True
+                    current_phase_expense = 0
+                    current_phase_overhead = 0
+                    current_phase_upfront = 0
+                else: 
+                    current_phase = phase_list[next_index]
+                    current_phase_remaining = int(phases[current_phase]['length']) - 1
+                    current_phase_expense = float(phases[current_phase]['expense'])
+                    current_phase_overhead = float(phases[current_phase]['overhead'])
+                    current_phase_upfront = float(phases[current_phase]['upfront'])
+                    phase_change = True
 
             print("Phase Determined")
 
@@ -351,7 +361,7 @@ def calculate_forecast(parsed_inputs):
             cumulative_net_cash += net_cash
             cumulative_cash_out += cash_out
 
-            if phase_change:
+            if phase_change or i == 1:
                 net_cash -= current_phase_upfront
                 cash_out += current_phase_upfront
                 cumulative_net_cash -= current_phase_upfront

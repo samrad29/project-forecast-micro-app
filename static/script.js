@@ -291,7 +291,7 @@ function addPhaseRow() {
     row.innerHTML = `
         <input type="text" class="phase-name" placeholder="Phase Name">
         <input type="number" class="phase-length" placeholder="Phase Length (months)">
-        <input type="number" class="phase-expense" placeholder="Project Expense">
+        <input type="number" class="phase-expense" placeholder="Phase Monthly Expense">
         <input type="number" class="phase-contingency" placeholder="Overhead">
         <input type="number" class="phase-upfront" placeholder="Upfront Cost">
         <button type="button" class="remove-phase">Remove</button>
