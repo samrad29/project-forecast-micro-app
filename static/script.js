@@ -127,8 +127,21 @@ function loadProjectAndGenerateForecast(projectId) {
     resultsSection.style.display = 'block';
     resultsSection.innerHTML = '<div class="loading">Loading project and generating forecast...</div>';
     
+    // Minimize form section
+    const formSection = document.getElementById('formSection');
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    if (formSection) {
+        formSection.classList.add('minimized');
+    }
+    if (toggleFormBtn) {
+        toggleFormBtn.textContent = 'Expand';
+    }
+    
     // Switch to calculator view
     switchView('calculator');
+    
+    // Scroll to results
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
     // Fetch project data
     fetch(`/get_project/${projectId}`)
