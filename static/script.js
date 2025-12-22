@@ -121,6 +121,70 @@ function loadProjects() {
         });
 }
 
+function loadProjectAndGenerateForecast(projectId) {
+    // Show loading state
+    const resultsSection = document.getElementById('resultsSection');
+    resultsSection.style.display = 'block';
+    resultsSection.innerHTML = '<div class="loading">Loading project and generating forecast...</div>';
+    
+    // Switch to calculator view
+    switchView('calculator');
+    
+    // Fetch project data
+    fetch(`/get_project/${projectId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const project = data.project;
+                
+                // Reconstruct form data structure from project data
+                const formData = {
+                    start_date: project.start_date || '',
+                    contract_value: project.contract_value,
+                    time_frame: project.time_frame,
+                    payment_lag: project.payment_lag,
+                    contingency_percent: project.contingency_percent,
+                    cash_floor: project.cash_floor,
+                    phases: project.phases,
+                    delays: project.delays,
+                    unexpected_costs: project.unexpected_costs,
+                    billing_milestones: project.billing_milestones
+                };
+                
+                // Store form data globally for saving projects
+                currentFormData = formData;
+                
+                // Generate forecast
+                fetch('/generate_forecast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        inputs: formData,
+                        scenario: formData.scenario
+                    })
+                })
+                .then(response => response.json())
+                .then(forecastData => {
+                    if (forecastData.success) {
+                        displayResults(forecastData.forecast);
+                    } else {
+                        showError(forecastData.message || 'An error occurred while generating forecast');
+                    }
+                })
+                .catch(error => {
+                    showError('Network error: ' + error.message);
+                });
+            } else {
+                showError(data.message || 'Error loading project');
+            }
+        })
+        .catch(error => {
+            showError('Network error: ' + error.message);
+        });
+}
+
 function displayProjects(projects) {
     const container = document.getElementById('projectsTableContainer');
     
@@ -151,7 +215,7 @@ function displayProjects(projects) {
         const createdDate = new Date(project.created_at).toLocaleDateString();
         const startDate = project.start_date ? new Date(project.start_date).toLocaleDateString() : 'N/A';
         html += `
-            <tr>
+            <tr class="project-row" data-project-id="${project.id}">
                 <td>${project.id}</td>
                 <td>${project.name}</td>
                 <td>${startDate}</td>
@@ -171,6 +235,15 @@ function displayProjects(projects) {
     `;
     
     container.innerHTML = html;
+    
+    // Add click handlers to project rows
+    const projectRows = container.querySelectorAll('.project-row');
+    projectRows.forEach(row => {
+        row.addEventListener('click', function() {
+            const projectId = this.getAttribute('data-project-id');
+            loadProjectAndGenerateForecast(projectId);
+        });
+    });
 }
 
 function initializeRemoveButtons() {

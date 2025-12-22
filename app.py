@@ -122,6 +122,51 @@ def get_projects():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/get_project/<int:project_id>', methods=['GET'])
+def get_project(project_id):
+    """Get a specific project by ID with all its data"""
+    try:
+        conn = get_db()
+        project = conn.execute('''
+            SELECT id, name, start_date, contract_value, time_frame, payment_lag, 
+                   contingency_percent, cash_floor, phases, delays, 
+                   unexpected_costs, billing_milestones, created_at, updated_at
+            FROM projects
+            WHERE id = ?
+        ''', (project_id,)).fetchone()
+        conn.close()
+        
+        if not project:
+            return jsonify({'success': False, 'message': 'Project not found'}), 404
+        
+        # Parse JSON strings back to dictionaries
+        # Convert delay keys from strings to integers (as they were stored as strings)
+        delays_parsed = json.loads(project['delays'])
+        delays_converted = {}
+        for key, value in delays_parsed.items():
+            delays_converted[int(key)] = value
+        
+        project_data = {
+            'id': project['id'],
+            'name': project['name'],
+            'start_date': project['start_date'] or '',
+            'contract_value': project['contract_value'],
+            'time_frame': project['time_frame'],
+            'payment_lag': project['payment_lag'],
+            'contingency_percent': project['contingency_percent'],
+            'cash_floor': project['cash_floor'],
+            'phases': json.loads(project['phases']),
+            'delays': delays_converted,
+            'unexpected_costs': json.loads(project['unexpected_costs']),
+            'billing_milestones': json.loads(project['billing_milestones']),
+            'created_at': project['created_at'],
+            'updated_at': project['updated_at']
+        }
+        
+        return jsonify({'success': True, 'project': project_data})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/create_project', methods=['POST'])
 def create_project_route():
     """Create and save a project"""
